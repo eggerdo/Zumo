@@ -28,13 +28,12 @@
 // INCLUDES
 //-------------------------------------------------------------------
 
+#include <cfg/Config.h>
 #include "Commander.h"
 
 #include "drivers/Serial.h"
 #include "drivers/Compass.h"
 #include "drivers/Actuator.h"
-
-#include "cfg/config.h"
 
 #include "behaviours/CompassTest.h"
 #include "behaviours/LineFollower.h"
@@ -59,7 +58,7 @@ void decSpeed();
 
 void handleInput(int incoming) {
 
-//	LOGi("incoming: %c (%d)", incoming, incoming);
+	LOGi("incoming: %c (%d)", incoming, incoming);
 	switch(incoming) {
 
 	// driving
@@ -82,6 +81,7 @@ void handleInput(int incoming) {
 		decSpeed();
 		break;
 
+#ifdef USE_COMPASS
 	// HEADING
 	case '1':
 		setHeading(-135);
@@ -96,7 +96,7 @@ void handleInput(int incoming) {
 		setHeading(-90);
 		break;
 	case '5':
-		if (isCalibrated()) {
+		if (compass.isCalibrated()) {
 			calibrateHeading();
 		}
 		break;
@@ -115,17 +115,29 @@ void handleInput(int incoming) {
 
 	// compass
 	case 'h':
-		calibrate();
+		compass.calibrate();
 		break;
+
+	// compass
+	case 'i':
+		turnDegrees(90);
+		break;
+
+	case 'u':
+		compass.reportHeading();
+		break;
+
+#endif
 
 	// compass test
-	case 'j':
-		driveSquare();
-		break;
-	case 'k':
-		stopDriving();
-		break;
+//	case 'j':
+//		driveSquare();
+//		break;
+//	case 'k':
+//		stopDriving();
+//		break;
 
+#ifdef MAZESOLVER
 	case 'p':
 		mazeSolver.print();
 		break;
@@ -139,6 +151,7 @@ void handleInput(int incoming) {
 	case 'm':
 		mazeSolver.stop();
 		break;
+#endif
 
 	// line follower
 #ifdef LINEFOLLOWER
@@ -152,10 +165,6 @@ void handleInput(int incoming) {
 //		lineFollower.stop();
 //		break;
 #endif
-
-	case 'u':
-		reportHeading();
-		break;
 
 	case 'q':
 	case 'e':

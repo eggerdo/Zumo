@@ -8,18 +8,13 @@
 #ifndef BLUETOOTH_H_
 #define BLUETOOTH_H_
 
-#include "aJSON.h"
+#include "Zumo.h"
+#include "byte_protocol.h"
 
-#define RxD 9
-#define TxD 8
-
-#define HOMING USER+1
-#define SHOOT_GUNS USER+2
-#define FIRE_VOLLEY USER+3
-#define HIT_DETECTED USER+4
-
-void initSerial(Stream *stream);
+void setBluetoothSerial(Stream *stream);
 
 int receiveCommands();
+
+void onCustom(message_t* msg);
 
 #endif /* BLUETOOTH_H_ */

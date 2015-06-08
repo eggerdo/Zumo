@@ -1,12 +1,8 @@
 // Do not remove the include below
 #include "Compass.h"
-#include "Actuator.h"
 
-#include <QTRSensors.h>
-#include <ZumoReflectanceSensorArray.h>
-#include <ZumoMotors.h>
-#include <ZumoBuzzer.h>
-//#include <Pushbutton.h>
+#include "drivers/Actuator.h"
+//#include "drivers/Sensors.h"
 #include <Wire.h>
 
 /* This example uses the magnetometer in the Zumo Shield's onboard
@@ -31,25 +27,22 @@
  * reliable.
  */
 
-//ZumoMotors _motors;
-//Pushbutton button(ZUMO_BUTTON);
+//LSM303 compass;
 
-LSM303 compass;
-bool calibrated = false;
-float target_heading = 0;
+Compass compass;
 
-void setTargetHeading(float heading) {
-	target_heading = heading;
+void Compass::setTargetHeading(int heading) {
+	_targetHeading = heading;
 }
 
-float getTargetHeading() {
-	return target_heading;
+int Compass::getTargetHeading() {
+	return _targetHeading;
 }
 
 // Setup will calibrate our compass by finding maximum/minimum magnetic readings
-void calibrate()
+void Compass::calibrate()
 {
-	calibrated = false;
+	_calibrated = false;
 
 	// The highest possible magnetic value to read in any direction is 2047
 	// The lowest possible magnetic value to read in any direction is -2047
@@ -60,13 +53,13 @@ void calibrate()
 	Wire.begin();
 
 	// Initiate LSM303
-	compass.init();
+	_compass.init();
 
 	// Enables accelerometer and magnetometer
-	compass.enableDefault();
+	_compass.enableDefault();
 
-	compass.writeReg(LSM303::CRB_REG_M, CRB_REG_M_2_5GAUSS); // +/- 2.5 gauss sensitivity to hopefully avoid overflow problems
-	compass.writeReg(LSM303::CRA_REG_M, CRA_REG_M_220HZ);    // 220 Hz compass update rate
+	_compass.writeReg(LSM303::CRB_REG_M, CRB_REG_M_2_5GAUSS); // +/- 2.5 gauss sensitivity to hopefully avoid overflow problems
+	_compass.writeReg(LSM303::CRA_REG_M, CRA_REG_M_220HZ);    // 220 Hz compass update rate
 
 	delay(500);
 
@@ -80,15 +73,13 @@ void calibrate()
 	for(index = 0; index < CALIBRATION_SAMPLES; index ++)
 	{
 		// Take a reading of the magnetic vector and store it in compass.m
-		compass.read();
+		_compass.read();
 
-		running_min.x = min(running_min.x, compass.m.x);
-		running_min.y = min(running_min.y, compass.m.y);
+		running_min.x = min(running_min.x, _compass.m.x);
+		running_min.y = min(running_min.y, _compass.m.y);
 
-		running_max.x = max(running_max.x, compass.m.x);
-		running_max.y = max(running_max.y, compass.m.y);
-
-		Serial.println(index);
+		running_max.x = max(running_max.x, _compass.m.x);
+		running_max.y = max(running_max.y, _compass.m.y);
 
 		delay(50);
 	}
@@ -100,53 +91,56 @@ void calibrate()
 	LOGi("min.x   %d", running_min.x);
 	LOGi("min.y   %d", running_min.y);
 
-	// Set calibrated values to compass.m_max and compass.m_min
-	compass.m_max.x = running_max.x;
-	compass.m_max.y = running_max.y;
-	compass.m_min.x = running_min.x;
-	compass.m_min.y = running_min.y;
+	// Set _calibrated values to compass.m_max and compass.m_min
+	_compass.m_max.x = running_max.x;
+	_compass.m_max.y = running_max.y;
+	_compass.m_min.x = running_min.x;
+	_compass.m_min.y = running_min.y;
 
-	calibrated = true;
+	_calibrated = true;
 }
 
-void reportStart() {
-	Looper::getInstance()->registerLoopFunc(reportHeading);
+extern "C" int report_heading() {
+//	return Compass::getInstance().reportHeading();
+	return compass.reportHeading();
 }
 
-void reportDone() {
-	Looper::getInstance()->unregisterLoopFunc(reportHeading);
+void Compass::reportStart() {
+	Looper::getInstance().registerLoopFunc(report_heading);
 }
 
-int reportHeading() {
-	if (!calibrated) return 0;
+void Compass::reportDone() {
+	Looper::getInstance().unregisterLoopFunc(report_heading);
+}
 
-	float heading, relative_heading;
+int Compass::reportHeading() {
+	if (!_calibrated) return 0;
+
+	int heading, relative_heading;
 
 	// Heading is given in degrees away from the magnetic vector, increasing clockwise
 	heading = averageHeading();
 
 	// This gives us the relative heading with respect to the target angle
-	relative_heading = relativeHeading(heading, target_heading);
+	relative_heading = relativeHeading(heading, _targetHeading);
 
-	char target_heading_[32];
-	dtostrf(target_heading, 6, 3, target_heading_);
-	char heading_[32];
-	dtostrf(heading, 6, 3, heading_);
-	char relative_heading_[32];
-	dtostrf(relative_heading, 6, 3, relative_heading_);
-
-	//	LOGi("target_heading: %s", target_heading_);
-	//	LOGi("heading: %s", heading_);
-	//	LOGi("relative_heading: %s", relative_heading_);
-	LOGi("target_heading: %s, heading: %s, relative_heading: %s", target_heading_, heading_, relative_heading_);
+//	char target_heading_[32];
+//	dtostrf(_targetHeading, 6, 3, target_heading_);
+//	char heading_[32];
+//	dtostrf(heading, 6, 3, heading_);
+//	char relative_heading_[32];
+//	dtostrf(relative_heading, 6, 3, relative_heading_);
+//
+//	LOGi("_targetHeading: %s, heading: %s, relative_heading: %s", target_heading_, heading_, relative_heading_);
+	LOGi("targetHeading: %d, heading: %d, relative_heading: %d", _targetHeading, heading, relative_heading);
 
 	return 200;
 }
 
 // Yields the angle difference in degrees between two headings
-float relativeHeading(float heading_from, float heading_to)
+int Compass::relativeHeading(int heading_from, int heading_to)
 {
-	float relative_heading = heading_to - heading_from;
+	int relative_heading = heading_to - heading_from;
 
 	// constrain to -180 to 180 degree range
 	if (relative_heading > 180)
@@ -159,35 +153,19 @@ float relativeHeading(float heading_from, float heading_to)
 
 // Average 10 vectors to get a better measurement and help smooth out
 // the _motors' magnetic interference.
-float averageHeading()
+int Compass::averageHeading()
 {
 	LSM303::vector<int32_t> avg = {0, 0, 0};
 
 	for(int i = 0; i < 10; i ++)
 	{
-		compass.read();
-		avg.x += compass.m.x;
-		avg.y += compass.m.y;
+		_compass.read();
+		avg.x += _compass.m.x;
+		avg.y += _compass.m.y;
 	}
 	avg.x /= 10.0;
 	avg.y /= 10.0;
 
 	// avg is the average measure of the magnetic vector.
-	return heading<int32_t>(avg);
+	return heading<int32_t>(_compass, avg);
 }
-
-bool isCalibrated() {
-	return calibrated;
-}
-
-//float heading(LSM303::vector<int32_t> v)
-//{
-//	float x_scaled =  2.0*(float)(v.x - compass.m_min.x) / ( compass.m_max.x - compass.m_min.x) - 1.0;
-//	float y_scaled =  2.0*(float)(v.y - compass.m_min.y) / (compass.m_max.y - compass.m_min.y) - 1.0;
-//
-//	float angle = atan2(y_scaled, x_scaled)*180 / M_PI;
-//	if (angle < 0)
-//		angle += 360;
-//	return angle;
-//}
-

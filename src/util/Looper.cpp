@@ -29,8 +29,6 @@
 #include "util/Looper.h"
 #include "util/Log.h"
 
-Looper* INSTANCE;
-
 Looper::Looper() :
 		mTimeNow(0),
 		last(NULL),
@@ -39,17 +37,9 @@ Looper::Looper() :
 	LOGi("looper create");
 }
 
-Looper* Looper::getInstance() {
-	if (INSTANCE == NULL) {
-		INSTANCE = new Looper();
-	}
-
-	return INSTANCE;
-}
-
 void Looper::loop() {
-	getInstance()->mTimeNow = millis();
-	getInstance()->run();
+	getInstance().mTimeNow = millis();
+	getInstance().run();
 }
 
 void Looper::run() {
@@ -69,7 +59,7 @@ void Looper::run() {
 }
 
 unsigned long Looper::now() {
-	return getInstance()->mTimeNow;
+	return getInstance().mTimeNow;
 }
 
 int idcnt = 0;
@@ -82,18 +72,18 @@ void Looper::registerLoopFunc(loopFunc_t func, int delay) {
 	loop->nextLoopFunc = NULL;
 
 	// if it's the first entry, set the first pointer to this entry
-	if (getInstance()->first == NULL) {
-		getInstance()->first = loop;
+	if (getInstance().first == NULL) {
+		getInstance().first = loop;
 	}
 
 	// if there was already an entry, update the next pointer of that
 	// entry to this entry
-	if (getInstance()->last != NULL) {
-		getInstance()->last->nextLoopFunc = loop;
+	if (getInstance().last != NULL) {
+		getInstance().last->nextLoopFunc = loop;
 	}
 
 	// update the last pointer to this entry
-	getInstance()->last = loop;
+	getInstance().last = loop;
 
 //	LOGi("register id: %d", loop->id);
 }

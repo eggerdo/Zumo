@@ -177,12 +177,12 @@ void MazeSolver::init()
 	LOGi("... done");
 }
 
-extern "C" int run_mazesolver() {
+extern "C" int run_maze_solver() {
 	return mazeSolver.execute();
 }
 
 void MazeSolver::start() {
-	if (!_calibrated) return;
+	if (_running || !_calibrated) return;
 
 	LOGi("MazeSolver start...");
 	reset();
@@ -192,23 +192,22 @@ void MazeSolver::start() {
 	buzzer.play("L16 cdegreg4");
 	while(buzzer.isPlaying());
 
-	if (startLooper) {
-		Looper::getInstance()->registerLoopFunc(run_mazesolver);
-		startLooper = false;
-	}
+	Looper::getInstance().registerLoopFunc(run_maze_solver);
+	_running = true;
 }
 
 void MazeSolver::stop() {
-	if (!_calibrated) return;
+	if (!_running || !_calibrated) return;
 
 	LOGi("MazeSolver stop...");
 
-	Looper::getInstance()->unregisterLoopFunc(run_mazesolver);
+	Looper::getInstance().unregisterLoopFunc(run_maze_solver);
 	drive_stop();
-	startLooper = true;
+	_running = false;
 }
 
 void MazeSolver::repeat() {
+	if (!_calibrated || _state < waiting) return;
 
 	LOGi("MazeSolver repeat...");
 
@@ -502,8 +501,8 @@ bool MazeSolver::solveMaze()
 		turn(dir);
 
 		// Store the intersection in the path variable.
-		path[path_length] = dir;
-		path_length++;
+		_path[_pathLength] = dir;
+		_pathLength++;
 
 		// You should check to make sure that the path_length does not
 		// exceed the bounds of the array.  We'll ignore that in this
@@ -530,7 +529,7 @@ bool MazeSolver::goToFinishLine()
 	switch(_step) {
 	case rs_started: {
 		// Turn around if the Zumo is facing the wrong direction.
-		if(path[0] == 'B')
+		if(_path[0] == 'B')
 		{
 			switchStep(rs_turn);
 		} else {
@@ -557,10 +556,10 @@ bool MazeSolver::goToFinishLine()
 
 		// Make a turn according to the instruction stored in
 		// path[i].
-		turn(path[_currentSegment]);
+		turn(_path[_currentSegment]);
 
 		_currentSegment++;
-		if (_currentSegment == path_length) {
+		if (_currentSegment == _pathLength) {
 			_currentSegment = 0;
 			switchStep(rs_finished);
 		} else {
@@ -614,7 +613,7 @@ void MazeSolver::simplifyPath()
 //	LOGi("simplifyPath");
 
 	// only simplify the path if the second-to-last turn was a 'B'
-	if(path_length < 3 || path[path_length - 2] != 'B') {
+	if(_pathLength < 3 || _path[_pathLength - 2] != 'B') {
 		print();
 		return;
 	}
@@ -624,7 +623,7 @@ void MazeSolver::simplifyPath()
 
 	for(i = 1; i <= 3; i++)
 	{
-		switch(path[path_length - i])
+		switch(_path[_pathLength - i])
 		{
 		case 'R':
 			total_angle += 90;
@@ -645,21 +644,21 @@ void MazeSolver::simplifyPath()
 	switch(total_angle)
 	{
 	case 0:
-		path[path_length - 3] = 'S';
+		_path[_pathLength - 3] = 'S';
 		break;
 	case 90:
-		path[path_length - 3] = 'R';
+		_path[_pathLength - 3] = 'R';
 		break;
 	case 180:
-		path[path_length - 3] = 'B';
+		_path[_pathLength - 3] = 'B';
 		break;
 	case 270:
-		path[path_length - 3] = 'L';
+		_path[_pathLength - 3] = 'L';
 		break;
 	}
 
 	// The path is now two steps shorter.
-	path_length -= 2;
+	_pathLength -= 2;
 
 	print();
 }

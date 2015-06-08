@@ -33,7 +33,7 @@ class BluetoothShield {
 #include <SoftwareSerial.h>   //Software Serial Port
 
 SoftwareSerial* setupBluetoothShield(int txPin, int rxPin);
-void setupBlueToothConnection();
+void setupBlueToothConnection(SoftwareSerial* bluetoothSerial);
 
 //void receive();
 void bt_loop();

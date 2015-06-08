@@ -7,14 +7,13 @@
 #ifndef _Zumo_H_
 #define _Zumo_H_
 
+#include <cfg/Config.h>
 #include "Arduino.h"
 //add your includes for the project Zumo here
 
-#include "Pinout.h"
 #include "util/Log.h"
 #include "util/Looper.h"
-#include "Debug.h"
-#include "cfg/config.h"
+#include "cfg/Pinout.h"
 
 //end of add your includes here
 #ifdef __cplusplus
@@ -29,6 +28,8 @@ void setup();
 //add your function definitions for the project Zumo here
 
 extern long lastActivity;
+
+extern Stream* btStream;
 
 void setupLoopers();
 

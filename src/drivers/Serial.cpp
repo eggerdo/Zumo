@@ -5,46 +5,42 @@
  *      Author: dominik
  */
 
-#include "Zumo.h"
 #include "Serial.h"
 #include "messenger.h"
-#include "protocol.h"
-#include "util/Log.h"
+#include "byte_protocol.h"
+//#include "protocol.h"
+//#include "util/Log.h"
 #include "Actuator.h"
-#include "Debug.h"
 #include "Commander.h"
 
 #ifdef BT_APP
+	void onControl(boolean enabled);
+	void onDisconnect(message_t* json);
+	void onSensorRequest(message_t* json);
+	void onDrive(int left, int right);
+
 	Messenger messenger(onControl, onDisconnect, onSensorRequest, onDrive, onCustom);
 #endif
 
 Stream* btSerialLine = NULL;
 
-int lastDrive = 0;
-#define DRIVE_TIMEOUT 1000
+long lastActivity = 0;
+long lastDrive = 0;
 
-void onControl(boolean enabled);
-void onDisconnect(aJsonObject* json);
-void onSensorRequest(aJsonObject* json);
-void onDrive(int left, int right);
-void onCustom(aJsonObject* json);
-
-void initSerial(Stream *stream) {
+void setBluetoothSerial(Stream *stream) {
 	btSerialLine = stream;
 	setSerialLine(stream);
-
-//	Looper::registerLoopFunc(receiveCommands);
 }
 
 void onControl(boolean enabled) {
 	LOGd("onControl: %s", (enabled ? "true" : "false"));
 }
 
-void onDisconnect(aJsonObject* json) {
+void onDisconnect(message_t* msg) {
 	LOGd("onDisconnect");
 }
 
-void onSensorRequest(aJsonObject* json) {
+void onSensorRequest(message_t* msg) {
 	LOGd("onSensorRequest");
 //	sendSensorData();
 }
@@ -58,11 +54,6 @@ void onDrive(int left, int right) {
 
 	if (left != 0 && right != 0) {
 		lastDrive = millis();
-	}
-}
-
-void onCustom(aJsonObject* json) {
-	switch(getType(json)) {
 	}
 }
 
@@ -85,6 +76,15 @@ int receiveCommands() {
 	}
 #endif
 #ifdef BT_APP
+//	if (btSerialLine->available()) {
+//		while (btSerialLine->available()) {
+//			int incoming = btSerialLine->read();
+//			Serial.write(incoming);
+//		}
+////		Serial.println(":");
+//	} else {
+////		Serial.println("-");
+//	}
 	if (messenger.handleMessages()) {
 		lastActivity = millis();
 	}

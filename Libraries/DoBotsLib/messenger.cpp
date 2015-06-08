@@ -1,4 +1,5 @@
 #include "messenger.h"
+#include "byte_protocol.h"
 
 Messenger::Messenger(handleControl_func onControl_cb, handleCommand_func onDisconnect_cb,
 		  handleCommand_func onSensorRequest_cb, handleDrive_func onDrive_cb, handleCustom_func onCustom_cb) :
@@ -10,45 +11,44 @@ Messenger::Messenger(handleControl_func onControl_cb, handleCommand_func onDisco
 }
 
 boolean Messenger::handleMessages() {
-	aJsonObject* item;
+	message_t* msg;
 	int left = 0, right = 0;
 	boolean enabled = false;
 
-	item = readMessage();
-	if (item == NULL) {
+	msg = readMessage();
+	if (msg == NULL) {
 		return false;
 	}
 
-	switch(getType(item)) {
+	switch(getType(msg)) {
 		case DRIVE_COMMAND:
 			if (onDrive != NULL) {
-				decodeDriveCommand(item, &left, &right);
+				decodeDriveCommand(msg, &left, &right);
 				onDrive(left, right);
 			}
 			break;
 		case CONTROL_COMMAND:
 			if (onControl != NULL) {
-				decodeControlCommand(item, &enabled);
+				decodeControlCommand(msg, &enabled);
 				onControl(enabled);
 			}
 			break;
 		case DISCONNECT:
 			if (onDisconnect != NULL) {
-				onDisconnect(item);
+				onDisconnect(msg);
 			}
 			break;
 		case SENSOR_REQUEST:
 			if (onSensorRequest != NULL) {
-				onSensorRequest(item);
+				onSensorRequest(msg);
 			}
 			break;
 		default:
 			if (onCustom != NULL) {
-				onCustom(item);
+				onCustom(msg);
 			}
 			break;
 	}
-	aJson.deleteItem(item);
 
 	return true;
 }

@@ -70,8 +70,8 @@ enum RepeatStep {
 
 class MazeSolver {
 public:
-	MazeSolver() : _calibrated(false), path_length(0), _state(idle), _step(rs_started),
-		_currentSegment(0), startLooper(true), _whiteLines(WHITE_LINES) {
+	MazeSolver() : _calibrated(false), _pathLength(0), _state(idle), _step(rs_started),
+		_currentSegment(0), _running(false), _whiteLines(WHITE_LINES) {
 //		memset(path, 0, sizeof(path));
 	};
 
@@ -86,8 +86,8 @@ public:
 	int execute();
 
 	void print() {
-		memset(&path[path_length], 0, 20-path_length);
-		LOGi("path: %s", path);
+		memset(&_path[_pathLength], 0, 20-_pathLength);
+		LOGi("path: %s", _path);
 	}
 
 	void repeat();
@@ -96,6 +96,8 @@ public:
 
 	bool isMazeSolving() { return _state != idle; };
 
+	bool isRunning() { return _running; }
+
 private:
 	bool _calibrated;
 
@@ -103,8 +105,8 @@ private:
 
 	// path[] keeps a log of all the turns made
 	// since starting the maze
-	char path[20];
-	unsigned char path_length; // the length of the path
+	char _path[20];
+	unsigned char _pathLength; // the length of the path
 
 	MazeSolverState _state;
 
@@ -112,10 +114,10 @@ private:
 
 	RepeatStep _step;
 
-	bool startLooper;
+	bool _running;
 
 	void reset() {
-		path_length = 0;
+		_pathLength = 0;
 	}
 
 	void switchState(MazeSolverState state) {

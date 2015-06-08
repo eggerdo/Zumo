@@ -2,7 +2,7 @@
 * 456789------------------------------------------------------------------------------------------------------------120
 *
 * @brief:
-* @file: Button.h
+* @file: App.h
 *
 * @desc: 
 *
@@ -19,18 +19,45 @@
 * Copyright (c) 2013 Dominik Egger <dominik@dobots.nl>
 *
 * @author:        Dominik Egger
-* @date:        Mar 21, 2015
+* @date:        May 20, 2015
 * @project:    Zumo
 * @company:     Distributed Organisms B.V.
 */
 
-#ifndef BUTTON_H_
-#define BUTTON_H_
+#pragma once
+
+//-------------------------------------------------------------------
+// INCLUDES
+//-------------------------------------------------------------------
 
 #include "Zumo.h"
-#include <Pushbutton.h>
+#include "drivers/Serial.h"
+#include "byte_protocol.h"
 
-bool checkForButton();
-void initButton(int button);
+//-------------------------------------------------------------------
+// CONFIG
+//-------------------------------------------------------------------
 
-#endif /* BUTTON_H_ */
+enum CustomCommands {
+	INIT_MAZE = USER,
+	START_MAZE,
+	STOP_MAZE,
+	REPEAT_MAZE,
+	CALIBRATE_COMPSS,
+	INIT_HEADING,
+	TURN_DEG,
+	SET_HEADING,
+	SUMO_START,
+	SUMO_STOP
+};
+
+struct turndegree_payload {
+	int16_t angle;
+};
+
+//-------------------------------------------------------------------
+// FUNCTIONS
+//-------------------------------------------------------------------
+
+
+

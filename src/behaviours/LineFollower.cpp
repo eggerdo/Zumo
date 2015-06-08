@@ -27,9 +27,9 @@
 //-------------------------------------------------------------------
 // INCLUDES
 //-------------------------------------------------------------------
+#include <cfg/Config.h>
 #include "LineFollower.h"
 
-#include "cfg/config.h"
 #include "drivers/Actuator.h"
 
 //-------------------------------------------------------------------
@@ -50,7 +50,7 @@ void LineFollower::init()
 	unsigned int sensors[6];
 
 	// Play a little welcome song
-	buzzer.play(">g32>>c32");
+//	buzzer.play(">g32>>c32");
 
 	// Initialize the reflectance sensors module
 //	reflectanceSensors.init(QTR_NO_EMITTER_PIN);
@@ -71,9 +71,9 @@ void LineFollower::init()
 			drive(-200, 200);
 		else
 			drive(200, -200);
-		reflectanceSensors.calibrate();
+//		reflectanceSensors.calibrate();
 
-		reflectanceSensors.readLine(sensors);
+//		reflectanceSensors.readLine(sensors);
 
 		delay(10);
 //		LOGi("sensor[0]: %d, sensor[5]: %d", sensors[0], sensors[5]);
@@ -102,10 +102,10 @@ void LineFollower::start() {
 //	LOGi("LineFollower start...");
 
 	// Play music and wait for it to finish before we start driving.
-	buzzer.play("L16 cdegreg4");
-	while(buzzer.isPlaying());
+//	buzzer.play("L16 cdegreg4");
+//	while(buzzer.isPlaying());
 
-	Looper::getInstance()->registerLoopFunc(run_linefollower);
+	Looper::getInstance().registerLoopFunc(run_linefollower);
 }
 
 void LineFollower::stop() {
@@ -113,7 +113,7 @@ void LineFollower::stop() {
 
 //	LOGi("LineFollower stop...");
 
-	Looper::getInstance()->unregisterLoopFunc(run_linefollower);
+	Looper::getInstance().unregisterLoopFunc(run_linefollower);
 	drive_stop();
 }
 
@@ -124,7 +124,8 @@ int LineFollower::execute()
 	// Get the position of the line.  Note that we *must* provide the "sensors"
 	// argument to readLine() here, even though we are not interested in the
 	// individual sensor readings
-	int position = reflectanceSensors.readLine(sensors);
+//	int position = reflectanceSensors.readLine(sensors);
+	int position;
 
 	// Our "error" is how far we are away from the center of the line, which
 	// corresponds to position 2500.

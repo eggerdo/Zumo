@@ -1,12 +1,15 @@
 #ifndef MESSENGER_H
 #define MESSENGER_H
 
-#include "protocol.h"
+//#include "protocol.h"
+#include "byte_protocol.h"
 
-typedef void (*handleCommand_func)(aJsonObject* json);
+#include <Arduino.h>
+
+typedef void (*handleCommand_func)(message_t* buffer);
 typedef void (*handleControl_func)(boolean enabled);
 typedef void (*handleDrive_func)(int left, int right);
-typedef void (*handleCustom_func)(aJsonObject* json);
+typedef void (*handleCustom_func)(message_t* buffer);
 
 class Messenger {
 

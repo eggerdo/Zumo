@@ -33,7 +33,11 @@
 
 ZumoMotors motors;
 
-#define CAPSPEED 400 // this cap should be low enough for all phones (give ppl option to up it for better phones)
+void initMotors() {
+	// uncomment if necessary to correct motor directions
+	//motors.flipLeftMotor(true);
+	//motors.flipRightMotor(true);
+}
 
 // --------------------------------------------------------------------
 // BASIC DRIVING
@@ -64,6 +68,7 @@ void drive_stop() {
 }
 
 
+#ifdef USE_COMPASS
 // --------------------------------------------------------------------
 // COMPASS DRIVING
 // --------------------------------------------------------------------
@@ -71,56 +76,70 @@ void drive_stop() {
 // --------------------------------------------------------------------
 // PUBLIC
 // --------------------------------------------------------------------
-static float target_heading;
-void turnDegrees(float angle) {
-	if (!isCalibrated()) {
+static int target_heading;
+void turnDegrees(int angle) {
+//	Compass& compass = Compass::getInstance();
+
+	if (!compass.isCalibrated()) {
 		LOGe("calibrate first!!");
 		return;
 	}
 
-	target_heading = fmod(averageHeading() + angle, 360);
+	target_heading = fmod(compass.averageHeading() + angle, 360);
+	compass.setTargetHeading(target_heading);
 
-	char* _angle = floatToString(angle);
-	LOGi("turnDegrees: %s", _angle);
-	free(_angle);
+	LOGi("turnDegrees: %d", angle);
+	LOGi("target_heading: %d", target_heading);
+//	char* _angle = floatToString(angle);
+//	LOGi("turnDegrees: %s", _angle);
+//	free(_angle);
 
-	reportHeading();
+	compass.reportHeading();
 
-	Looper::getInstance()->registerLoopFunc(doTurn);
-	reportStart();
+	Looper::getInstance().registerLoopFunc(doTurn);
+	compass.reportStart();
 }
 
-static float headingOffset = 0;
+static int headingOffset = 0;
 void calibrateHeading() {
-	if (!isCalibrated()) {
+	if (!compass.isCalibrated()) {
 		LOGe("calibrate first!!");
 		return;
 	}
 
-	headingOffset = averageHeading();
+	compass.reportDone();
 
-	char* _headingOffset = floatToString(headingOffset);
-	LOGd("headingOffset: %s", _headingOffset);
-	free(_headingOffset);
+	headingOffset = compass.averageHeading();
 
+	LOGd("headingOffset: %d", headingOffset);
+
+//	char* _headingOffset = floatToString(headingOffset);
+//	LOGi("4");
+//	LOGd("headingOffset: %s", _headingOffset);
+//	free(_headingOffset);
 }
 
-void setHeading(float angle) {
-	if (!isCalibrated()) {
+void setHeading(int angle) {
+//	Compass& compass = Compass::getInstance();
+
+	if (!compass.isCalibrated()) {
 		LOGe("calibrate first!!");
 		return;
 	}
 
 	target_heading = fmod(headingOffset + angle, 360);
 
-	char* _angle = floatToString(angle);
-	LOGi("setHeading to: %s", _angle);
-	free(_angle);
+	LOGi("setHeading to: %d", angle);
 
-	reportHeading();
 
-	Looper::getInstance()->registerLoopFunc(doTurn);
-	reportStart();
+//	char* _angle = floatToString(angle);
+//	LOGi("setHeading to: %s", _angle);
+//	free(_angle);
+
+	compass.reportHeading();
+
+	Looper::getInstance().registerLoopFunc(doTurn);
+	compass.reportStart();
 }
 
 
@@ -129,19 +148,24 @@ void setHeading(float angle) {
 // --------------------------------------------------------------------
 
 int doTurn() {
-	float heading, relative_heading;
+	int heading, relative_heading;
 	int speed;
 
+//	Compass& compass = Compass::getInstance();
+
 	// Heading is given in degrees away from the magnetic vector, increasing clockwise
-	heading = averageHeading();
+	heading = compass.averageHeading();
 
 	// This gives us the relative heading with respect to the target angle
-	relative_heading = relativeHeading(heading, target_heading);
+	relative_heading = compass.relativeHeading(heading, target_heading);
+
+//	LOGi("relative_heading: %d", relative_heading);
+	compass.reportHeading();
 
 	if(abs(relative_heading) < DEVIATION_THRESHOLD) {
 		LOGi("... done");
-		Looper::getInstance()->unregisterLoopFunc(doTurn);
-		reportDone();
+		Looper::getInstance().unregisterLoopFunc(doTurn);
+		compass.reportDone();
 		drive_stop();
 		return 0;
 	}
@@ -151,7 +175,7 @@ int doTurn() {
 	// minimum base amount plus an additional variable amount based
 	// on the heading difference.
 
-	speed = SPEED*relative_heading/180;
+	speed = SPEED*relative_heading/180.0;
 
 	if (speed < 0)
 		speed -= TURN_BASE_SPEED;
@@ -163,3 +187,4 @@ int doTurn() {
 
 	return 0;
 }
+#endif

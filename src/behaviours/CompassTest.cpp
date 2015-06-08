@@ -35,19 +35,22 @@ int state = TURN;
 unsigned long startStraight;
 
 void driveSquare() {
-	LOGi("start Drive Square...");
-	if (isCalibrated()) {
+//	Compass& compass = Compass::getInstance();
+
+	if (compass.isCalibrated()) {
+		LOGi("start Drive Square ...");
 		state = TURN;
-		setTargetHeading(averageHeading());
-		Looper::getInstance()->registerLoopFunc(onDriveSquare);
-		reportStart();
+		compass.setTargetHeading(compass.averageHeading());
+		Looper::getInstance().registerLoopFunc(onDriveSquare);
+		compass.reportStart();
 	}
 }
 
 void stopDriving() {
-	LOGi(".. stop Drive Square");
-	Looper::getInstance()->unregisterLoopFunc(onDriveSquare);
-	reportDone();
+
+	LOGi("... stop Drive Square");
+	Looper::getInstance().unregisterLoopFunc(onDriveSquare);
+//	Compass::getInstance().reportDone();
 	drive_stop();
 }
 
@@ -55,13 +58,16 @@ int onDriveSquare()
 {
 	float heading, relative_heading;
 	int speed;
+
+//	Compass& compass = Compass::getInstance();
+
 //	target_heading = averageHeading();
 
 	// Heading is given in degrees away from the magnetic vector, increasing clockwise
-	heading = averageHeading();
+	heading = compass.averageHeading();
 
 	// This gives us the relative heading with respect to the target angle
-	relative_heading = relativeHeading(heading, getTargetHeading());
+	relative_heading = compass.relativeHeading(heading, compass.getTargetHeading());
 
 	// If the Zumo has turned to the direction it wants to be pointing, go straight and then do another turn
 	if(abs(relative_heading) < DEVIATION_THRESHOLD && state == TURN) {
@@ -91,7 +97,7 @@ int onDriveSquare()
 			// heading (which might have been measured in a different magnetic
 			// field than the one the Zumo is experiencing now).
 			// Note: fmod() is floating point modulo
-			setTargetHeading(fmod(averageHeading() + 90, 360));
+			compass.setTargetHeading(fmod(compass.averageHeading() + 90, 360));
 
 //			LOGi("   Turn");
 		}

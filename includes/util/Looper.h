@@ -40,7 +40,10 @@ struct loopFunc {
 
 class Looper {
 public:
-	static Looper* getInstance();
+	static Looper& getInstance() {
+		static Looper instance;
+		return instance;
+	}
 
 	// loops through all registered function and executes them if the delay expired
 	static void loop();

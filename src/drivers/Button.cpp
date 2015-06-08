@@ -28,7 +28,7 @@
 
 Pushbutton* _button;
 
-void setupButton(int button) {
+void initButton(int button) {
 	_button = new Pushbutton(button);
 	pinMode(LED, OUTPUT);
 }

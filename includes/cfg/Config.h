@@ -12,20 +12,31 @@
 
 #pragma once
 
-//-------------------------------------------------------------------
-// INCLUDES
-//-------------------------------------------------------------------
+#define SUMO
+#define MAZESOLVER
+//#define LINEFOLLOWER
+#define USE_COMPASS
 
+#define LOG_TIME
+
+#define USB_SERIAL
+#define BT_APP
+//#define BT_SERIAL
 
 //-------------------------------------------------------------------
 // CONFIG
 //-------------------------------------------------------------------
+
+//#define SERIAL_VERBOSITY INFO
+//#define SERIAL_VERBOSITY DEBUG
 
 /////////////////////////////////////////////////////////////////////
 // Remote Control
 /////////////////////////////////////////////////////////////////////
 
 const int DEFAULT_SPEED				= 100;
+
+const int DRIVE_TIMEOUT				= 1000; // 1 second
 
 /////////////////////////////////////////////////////////////////////
 // Line Follower
@@ -37,7 +48,7 @@ const int MAX_LINEFOLLOWER_SPEED	= 400;
 // Maze Solver
 /////////////////////////////////////////////////////////////////////
 
-#define WHITE_LINES true
+#define WHITE_LINES false
 
 // Motor speed when turning. TURN_SPEED should always
 // have a positive value, otherwise the Zumo will turn
