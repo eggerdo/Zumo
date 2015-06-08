@@ -4,24 +4,11 @@
  * @brief:
  * @file: MazeSolver.cpp
  *
- * @desc:
- *
- * This file is created at Almende B.V. and Distributed Organisms B.V. It is open-source software and belongs to a
- * larger suite of software that is meant for research on self-organization principles and multi-agent systems where
- * learning algorithms are an important aspect.
- *
- * This software is published under the GNU Lesser General Public license (LGPL).
- *
- * It is not possible to add usage restrictions to an open-source license. Nevertheless, we personally strongly object
- * against this software being used for military purposes, factory farming, animal experimentation, and "Universal
- * Declaration of Human Rights" violations.
- *
- * Copyright (c) 2013 Dominik Egger <dominik@dobots.nl>
  *
  * @author:        Dominik Egger
  * @date:        May 14, 2015
  * @project:    Zumo
- * @company:     Distributed Organisms B.V.
+ *
  */
 
 //-------------------------------------------------------------------
@@ -57,7 +44,7 @@
  * found here:
  *
  * http://www.pololu.com/docs/0J21/8.a
- * 
+ *
  * The Zumo first calibrates the sensors to account
  * for differences of the black line on white background.
  * Calibration is accomplished in setup().
@@ -66,14 +53,14 @@
  * the Zumo until it finds the finish line which is defined as
  * a large black area that is thick and wide enough to
  * cover all six sensors at the same time.
- * 
+ *
  * Once the Zumo reaches the finishing line, it will stop and
  * wait for the user to place the Zumo back at the starting
  * line. The Zumo can then follow the shortest path to the finish
  * line.
  *
  * The macros MAX_MAZESOLVER_SPEED, MAX_MAZESOLVER_TURN_MAX_MAZESOLVER_SPEED, ABOVE_LINE(), and LINE_THICKNESS
- * might need to be adjusted on a case by case basis to give better 
+ * might need to be adjusted on a case by case basis to give better
  * line following results.
  */
 
