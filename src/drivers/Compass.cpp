@@ -143,10 +143,17 @@ int Compass::relativeHeading(int heading_from, int heading_to)
 	int relative_heading = heading_to - heading_from;
 
 	// constrain to -180 to 180 degree range
-	if (relative_heading > 180)
+	if (relative_heading > 180) {
 		relative_heading -= 360;
-	if (relative_heading < -180)
+//		relative_heading *= -1;
+//		LOGi("overflow +");
+	}
+	if (relative_heading < -180) {
 		relative_heading += 360;
+//		relative_heading *= -1;
+//		LOGi("overflow -");
+	}
+//	relative_heading %= 360;
 
 	return relative_heading;
 }

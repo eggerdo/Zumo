@@ -55,7 +55,7 @@
 // INCLUDES
 //-------------------------------------------------------------------
 
-#include <Sumo.h>
+#include <programs/Sumo.h>
 #include "Sensors.h"
 
 #include "drivers/Actuator.h"

@@ -28,7 +28,7 @@
 // CONFIG
 //-------------------------------------------------------------------
 
- #define LOG_SERIAL // write log output to serial port
+// #define LOG_SERIAL // write log output to serial port
 
 //#define LED 13
 //Pushbutton button(ZUMO_BUTTON); // pushbutton on pin 12
@@ -132,7 +132,7 @@ private:
 
 class Sumo {
 public:
-	Sumo() : _initialized(false), _startLooper(true), _running(false), _whiteLines(WHITE_LINES), _inContact(false), _contactMadeTime(0),
+	Sumo() : _initialized(false), _running(false), _whiteLines(WHITE_LINES), _inContact(false), _contactMadeTime(0),
 	_lastTurnTime(0), _forwardSpeed(SearchSpeed), _fullSpeedStartTime(0) {
 	};
 

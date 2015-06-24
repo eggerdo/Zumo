@@ -29,6 +29,8 @@
 // CONFIG
 //-------------------------------------------------------------------
 
+#define MAX_PATH_LENGTH 20
+
 // ABOVE_LINE is a helper macro that takes returns
 // 1 if the sensor is over the line and 0 if otherwise
 #define ABOVE_LINE(sensor)((sensor) > SENSOR_THRESHOLD)
@@ -38,12 +40,12 @@
 //-------------------------------------------------------------------
 
 enum MazeSolverState {
-	idle,
 	solving,
 	solved,
-	waiting,
+//	waiting,
 	repeating,
-	finished
+	finished,
+	idle
 };
 
 //extern const char* mazeSolverStateStr[];
@@ -60,7 +62,7 @@ enum RepeatStep {
 class MazeSolver {
 public:
 	MazeSolver() : _calibrated(false), _pathLength(0), _state(idle), _step(rs_started),
-		_currentSegment(0), _running(false), _whiteLines(WHITE_LINES) {
+		_currentSegment(0), _running(false), _whiteLines(WHITE_LINES), _pathInvalid(false) {
 //		memset(path, 0, sizeof(path));
 	};
 
@@ -75,7 +77,7 @@ public:
 	int execute();
 
 	void print() {
-		memset(&_path[_pathLength], 0, 20-_pathLength);
+		memset(&_path[_pathLength], 0, MAX_PATH_LENGTH-_pathLength);
 		LOGi("path: %s", _path);
 	}
 
@@ -83,7 +85,7 @@ public:
 
 	bool isWaiting() { return _state == solved; }
 
-	bool isMazeSolving() { return _state != idle; };
+//	bool isMazeSolving() { return _state != idle; };
 
 	bool isRunning() { return _running; }
 
@@ -94,8 +96,9 @@ private:
 
 	// path[] keeps a log of all the turns made
 	// since starting the maze
-	char _path[20];
+	char _path[MAX_PATH_LENGTH];
 	unsigned char _pathLength; // the length of the path
+	bool _pathInvalid;
 
 	MazeSolverState _state;
 
@@ -107,6 +110,7 @@ private:
 
 	void reset() {
 		_pathLength = 0;
+		_pathInvalid = false;
 	}
 
 	void switchState(MazeSolverState state) {

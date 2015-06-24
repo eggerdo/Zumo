@@ -69,7 +69,6 @@ message_t* readMessage() {
 
 	byte* ptr = buffer;
 	if (serial_stream->available()) {
-		LOGi("available:");
 		size_t length = 0;
 
 		while (serial_stream->available()) {
@@ -82,8 +81,7 @@ message_t* readMessage() {
 			}
 		}
 
-		LOGi("length: %d", length);
-
+		LOGd("received: ");
 		printArray(buffer, length);
 
 		message_t* msg = (message_t*)buffer;

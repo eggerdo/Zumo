@@ -14,7 +14,7 @@
  *
  */
 
-#include "CompassTest.h"
+#include <programs/CompassTest.h>
 #include "drivers/Actuator.h"
 #include "drivers/Compass.h"
 

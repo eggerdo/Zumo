@@ -14,6 +14,7 @@
 #include "util/Log.h"
 #include "util/Looper.h"
 #include "cfg/Pinout.h"
+#include "drivers/Storage.h"
 
 //end of add your includes here
 #ifdef __cplusplus
@@ -30,6 +31,9 @@ void setup();
 extern long lastActivity;
 
 extern Stream* btStream;
+
+extern Program _currentProgram;
+extern bool _whiteLines;
 
 void setupLoopers();
 

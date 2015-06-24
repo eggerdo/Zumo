@@ -12,10 +12,11 @@
 
 #pragma once
 
-#define SUMO
+//#define SUMO
 #define MAZESOLVER
-//#define LINEFOLLOWER
-#define USE_COMPASS
+//#define USE_COMPASS
+
+//#define LINEFOLLOWER // not really necessary, can be done with mazesolver
 
 #define LOG_TIME
 
@@ -28,7 +29,7 @@
 //-------------------------------------------------------------------
 
 //#define SERIAL_VERBOSITY INFO
-//#define SERIAL_VERBOSITY DEBUG
+#define SERIAL_VERBOSITY DEBUG
 
 /////////////////////////////////////////////////////////////////////
 // Remote Control

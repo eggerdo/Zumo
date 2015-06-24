@@ -19,15 +19,14 @@
 //-------------------------------------------------------------------
 
 #include <cfg/Config.h>
+#include <programs/CompassTest.h>
+#include <programs/LineFollower.h>
+#include <programs/MazeSolver.h>
 #include "Commander.h"
 
 #include "drivers/Serial.h"
 #include "drivers/Compass.h"
 #include "drivers/Actuator.h"
-
-#include "behaviours/CompassTest.h"
-#include "behaviours/LineFollower.h"
-#include "behaviours/MazeSolver.h"
 
 //-------------------------------------------------------------------
 // CONFIG
@@ -74,16 +73,16 @@ void handleInput(int incoming) {
 #ifdef USE_COMPASS
 	// HEADING
 	case '1':
-		setHeading(-135);
+		setTargetHeading(-135);
 		break;
 	case '2':
-		setHeading(180);
+		setTargetHeading(180);
 		break;
 	case '3':
-		setHeading(135);
+		setTargetHeading(135);
 		break;
 	case '4':
-		setHeading(-90);
+		setTargetHeading(-90);
 		break;
 	case '5':
 		if (compass.isCalibrated()) {
@@ -91,16 +90,16 @@ void handleInput(int incoming) {
 		}
 		break;
 	case '6':
-		setHeading(90);
+		setTargetHeading(90);
 		break;
 	case '7':
-		setHeading(-45);
+		setTargetHeading(-45);
 		break;
 	case '8':
-		setHeading(0);
+		setTargetHeading(0);
 		break;
 	case '9':
-		setHeading(45);
+		setTargetHeading(45);
 		break;
 
 	// compass
@@ -110,7 +109,26 @@ void handleInput(int incoming) {
 
 	// compass
 	case 'i':
-		turnDegrees(90);
+		turnDegrees(180);
+		break;
+
+	// compass
+	case 'j':
+		turnDegrees(-180);
+		break;
+
+		// compass
+		case 'l':
+			turnDegrees(-90);
+			break;
+
+			// compass
+			case ';':
+				turnDegrees(90);
+				break;
+
+	case 'k':
+		stopTurn();
 		break;
 
 	case 'u':

@@ -12,18 +12,21 @@
 #include "drivers/Sensors.h"
 
 #ifdef LINEFOLLOWER
-#include "behaviours/LineFollower.h"
+#include <programs/LineFollower.h>
 #endif
 
 #ifdef MAZESOLVER
-#include "behaviours/MazeSolver.h"
+#include <programs/MazeSolver.h>
 #endif
 
 #ifdef SUMO
-#include "behaviours/Sumo.h"
+#include <programs/Sumo.h>
 #endif
 
 Stream* btStream;
+
+Program _currentProgram;
+bool _whiteLines;
 
 //The setup function is called once at startup of the sketch
 void setup()
@@ -34,7 +37,9 @@ void setup()
 #ifdef BT_SERIAL
 	initLogging(btStream);
 #else
+#ifdef USB_SERIAL
 	initLogging(&Serial);
+#endif
 #endif
 
 	setBluetoothSerial(btStream);
@@ -46,6 +51,28 @@ void setup()
 	drive(0, 0);
 
 	setupLoopers();
+
+	_whiteLines = Storage::getWhiteLines();
+	LOGi("use white lines: %s", _whiteLines ? "true" : "false");
+
+	_currentProgram = Storage::getCurrentProgram();
+
+	switch (_currentProgram) {
+	case Prog_MazeSolver:
+		LOGi("Program MazeSolver selected");
+		break;
+	case Prog_LineFollower:
+		LOGi("Program LineFollower selected");
+		break;
+	case Prog_Sumo:
+		LOGi("Program Sumo selected");
+		break;
+	default:
+		LOGi("unknown program");
+		_currentProgram = Prog_MazeSolver;
+		Storage::setCurrentProgram(_currentProgram);
+		break;
+	}
 
 	LOGi("initialisation done ...");
 }
@@ -60,33 +87,52 @@ void loop()
 	Looper::loop();
 
 	if (checkForButton()) {
-#ifdef LINEFOLLOWER
-		if (!lineFollower.isCalibrated()) {
-			lineFollower.init();
-		} else {
-			if (!lineFollowing) {
-				lineFollower.start();
-			} else {
-				lineFollower.stop();
-			}
-		}
-#endif
 
+		switch(_currentProgram) {
 #ifdef MAZESOLVER
-		if (!mazeSolver.isCalibrated()) {
-			mazeSolver.init();
-		} else {
-			if (!mazeSolver.isMazeSolving()) {
-				mazeSolver.start();
-			} else if (mazeSolver.isWaiting()) {
-				mazeSolver.repeat();
+		case Prog_MazeSolver: {
+			if (!mazeSolver.isCalibrated()) {
+				mazeSolver.init();
 			} else {
-				mazeSolver.stop();
+				if (!mazeSolver.isRunning()) {
+					mazeSolver.start();
+				} else if (mazeSolver.isWaiting()) {
+					mazeSolver.repeat();
+				} else {
+					mazeSolver.stop();
+				}
 			}
+			break;
+		}
+		case Prog_LineFollower: {
+			if (!mazeSolver.isCalibrated()) {
+				mazeSolver.init();
+			} else {
+				if (!mazeSolver.isRunning()) {
+					mazeSolver.start();
+				} else {
+					mazeSolver.stop();
+				}
+			}
+			break;
 		}
 #endif
-
+#ifdef LINEFOLLOWER
+		case Prog_LineFollower: {
+			if (!lineFollower.isCalibrated()) {
+				lineFollower.init();
+			} else {
+				if (!lineFollowing) {
+					lineFollower.start();
+				} else {
+					lineFollower.stop();
+				}
+			}
+			break;
+		}
+#endif
 #ifdef SUMO
+		case Prog_Sumo: {
 //		if (!sumo.isInitialized()) {
 //			sumo.init();
 //		} else {
@@ -96,7 +142,12 @@ void loop()
 				sumo.stop();
 			}
 //		}
+			break;
+		}
 #endif
+		default:
+			break;
+		}
 
 	}
 }

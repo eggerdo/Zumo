@@ -28,8 +28,7 @@
 // INCLUDES
 //-------------------------------------------------------------------
 #include <cfg/Config.h>
-#include "LineFollower.h"
-
+#include <programs/LineFollower.h>
 #include "drivers/Actuator.h"
 
 //-------------------------------------------------------------------

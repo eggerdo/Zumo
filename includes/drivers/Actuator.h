@@ -46,9 +46,11 @@ void drive(int leftSpeed, int rightSpeed);
 void drive_stop();
 
 
-void setHeading(int angle);
+void setTargetHeading(int angle);
 void calibrateHeading();
 void turnDegrees(int angle);
 int doTurn();
+
+void stopTurn();
 
 #endif /* ACTUATOR_H_ */

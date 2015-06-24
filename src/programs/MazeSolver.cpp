@@ -15,8 +15,7 @@
 // INCLUDES
 //-------------------------------------------------------------------
 
-#include "behaviours/MazeSolver.h"
-
+#include <programs/MazeSolver.h>
 #include "Sensors.h"
 
 #include "drivers/Actuator.h"
@@ -194,7 +193,7 @@ void MazeSolver::stop() {
 }
 
 void MazeSolver::repeat() {
-	if (!_calibrated || _state < waiting) return;
+	if (!_calibrated || _state < solved) return;
 
 	LOGi("MazeSolver repeat...");
 
@@ -233,6 +232,10 @@ int MazeSolver::execute()
 		break;
 	}
 	case solved: {
+
+		if (_pathInvalid) {
+			switchState(finished);
+		}
 
 //		if (checkForButton()) {
 //			switchState(repeating);
@@ -488,15 +491,15 @@ bool MazeSolver::solveMaze()
 		turn(dir);
 
 		// Store the intersection in the path variable.
-		_path[_pathLength] = dir;
-		_pathLength++;
+		if (_pathLength < MAX_PATH_LENGTH) {
+			_path[_pathLength] = dir;
+			_pathLength++;
 
-		// You should check to make sure that the path_length does not
-		// exceed the bounds of the array.  We'll ignore that in this
-		// example.
-
-		// Simplify the learned path.
-		simplifyPath();
+			// Simplify the learned path.
+			simplifyPath();
+		} else {
+			_pathInvalid = true;
+		}
 
 	}
 

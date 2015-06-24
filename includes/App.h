@@ -28,16 +28,29 @@
 //-------------------------------------------------------------------
 
 enum CustomCommands {
-	INIT_MAZE = USER,
-	START_MAZE,
-	STOP_MAZE,
-	REPEAT_MAZE,
-	CALIBRATE_COMPSS,
-	INIT_HEADING,
-	TURN_DEG,
-	SET_HEADING,
-	SUMO_START,
-	SUMO_STOP
+	INIT_MAZE = USER,		// 20 (0x14)
+	START_MAZE,				// 21
+	STOP_MAZE,				// 22
+	REPEAT_MAZE,			// 23
+	CALIBRATE_COMPSS,		// 24
+	INIT_HEADING,			// 25
+	TURN_DEG,				// 26 (0x1A)
+	SET_HEADING,			// 27
+	INIT_LINE_FOLLOWER,		// 28
+	START_LINE_FOLLOWER,	// 29
+	STOP_LINE_FOLLOWER,		// 30
+	START_SUMO,				// 31 (0x1F)
+	STOP_SUMO,				// 32
+	SET_WHITE_LINES,		// 33
+//	SET_PROGRAM,
+};
+
+struct whitelines_payload {
+	uint8_t whiteLines;
+};
+
+struct program_payload {
+	uint8_t program;
 };
 
 struct turndegree_payload {

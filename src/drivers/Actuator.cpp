@@ -87,7 +87,7 @@ void turnDegrees(int angle) {
 	compass.reportHeading();
 
 	Looper::getInstance().registerLoopFunc(doTurn);
-	compass.reportStart();
+//	compass.reportStart();
 }
 
 static int headingOffset = 0;
@@ -109,7 +109,7 @@ void calibrateHeading() {
 //	free(_headingOffset);
 }
 
-void setHeading(int angle) {
+void setTargetHeading(int angle) {
 //	Compass& compass = Compass::getInstance();
 
 	if (!compass.isCalibrated()) {
@@ -129,9 +129,14 @@ void setHeading(int angle) {
 	compass.reportHeading();
 
 	Looper::getInstance().registerLoopFunc(doTurn);
-	compass.reportStart();
+//	compass.reportStart();
 }
 
+void stopTurn() {
+	LOGi("stop turn");
+	Looper::getInstance().unregisterLoopFunc(doTurn);
+	drive_stop();
+}
 
 // --------------------------------------------------------------------
 // PRIVATE
@@ -155,7 +160,7 @@ int doTurn() {
 	if(abs(relative_heading) < DEVIATION_THRESHOLD) {
 		LOGi("... done");
 		Looper::getInstance().unregisterLoopFunc(doTurn);
-		compass.reportDone();
+//		compass.reportDone();
 		drive_stop();
 		return 0;
 	}
@@ -172,9 +177,9 @@ int doTurn() {
 	else
 		speed += TURN_BASE_SPEED;
 
-	LOGd("turn: %d", speed);
+	LOGi("rel head: %d, turn: %d", relative_heading, speed);
 	drive(speed, -speed);
 
-	return 0;
+	return 50;
 }
 #endif
